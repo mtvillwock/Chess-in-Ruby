@@ -7,29 +7,28 @@ module Chess
     end
 
     def show
-      @board.each { |row| p row }
+      @board.map do |row|
+        p row.map { |square| square.nil? ? "_" : square.to_s }
+      end
     end
 
     def [](square)
-      row, col = square
-      @board[row][col]
+      col, row = square
+      @board[7 - row][col]
     end
 
     def []=(square, piece)
-      row, col = square
-      @board[row][col] = piece
+      col, row = square
+      @board[7 - row][col] = piece
     end
 
     def is_empty?(square)
       self[square].nil?
     end
 
-    def has_own_piece?(square, color)
-      piece = self[square] && piece.color == color
+    def has_own_piece?(square, my_color)
+      (piece = self[square]) && (piece.color == my_color)
     end
 
   end
 end
-
-x = Chess::Board.new
-x.show
