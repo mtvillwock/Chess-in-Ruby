@@ -22,10 +22,6 @@ module Chess
       @board[7 - row][col] = piece
     end
 
-    def is_empty?(square)
-      self[square].nil?
-    end
-
     def has_own_piece?(square, my_color)
       (piece = self[square]) && (piece.color == my_color)
     end

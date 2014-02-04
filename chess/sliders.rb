@@ -5,14 +5,13 @@ module Chess
 
     def valid_moves
       p "in valid_moves"
-      row, col = @square
       [].tap do |all_valids|
-        @move_directions.each do |dir_row, dir_col|
-          next_move = [row + dir_row, col + dir_col]
+        @move_directions.each do |direction|
+          next_move = @square.add_elements(direction)
           until !move_valid?(next_move)
-            all_valids << next_move
+            all_valids << next_move.dup
             break if !@board[next_move].nil?
-            next_move = [next_move[0] + dir_row, next_move[1] + dir_col]
+            next_move.add_elements!(direction)
           end
         end
       end
@@ -26,7 +25,7 @@ module Chess
     end
 
     def to_s
-      @color == "white" ? "\u2655".encode("UTF-8") : "\u265B".encode("UTF-8")
+      @color == :white ? "\u2655".encode("UTF-8") : "\u265B".encode("UTF-8")
     end
   end
 
@@ -37,7 +36,7 @@ module Chess
     end
 
     def to_s
-      @color == "white" ? "\u2656".encode("UTF-8") : "\u265C".encode("UTF-8")
+      @color == :white ? "\u2656".encode("UTF-8") : "\u265C".encode("UTF-8")
     end
   end
 
@@ -48,10 +47,10 @@ module Chess
     end
 
     def to_s
-      @color == "white" ? "\u2657".encode("UTF-8") : "\u265D".encode("UTF-8")
+      @color == :white ? "\u2657".encode("UTF-8") : "\u265D".encode("UTF-8")
     end
   end
 end
 
 # for pawns
-# @color == "white" ? "\u2659".encode("UTF-8") : "\u265F".encode("UTF-8")
+#@color == :white ? "\u2659".encode("UTF-8") : "\u265F".encode("UTF-8")
