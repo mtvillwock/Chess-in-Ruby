@@ -10,9 +10,11 @@ module Chess
     end
 
     def show
-      @board.map do |row|
-        p row.map { |square| square.nil? ? "_" : square.to_s }
+      print_board = @board.map do |row|
+        row.map { |square| square.nil? ? "_" : square.to_s }.join(" ")
       end
+
+      puts print_board
     end
 
     def dup
@@ -44,7 +46,6 @@ module Chess
       end
     end
 
-
     def each_piece_with_square(&blk)
       if blk
         (0...8).each do |row|
@@ -67,7 +68,10 @@ module Chess
       king_location = king_square
       self.each_piece_with_square do |piece, square|
         next if piece.nil? || piece.color == self.turn_color
-        return true if piece.valid_moves.include?(king_location)
+        if piece.valid_moves.include?(king_location)
+          puts "check!"
+          return true
+        end
       end
       false
     end
@@ -97,10 +101,8 @@ module Chess
         raise ArgumentError.new "This would leave you in check"
       else
         execute_move(start_square, end_square)
-        self.turn_color = (self.turn_color == :white? ? :black : :white)
+        self.turn_color = (self.turn_color == :white ? :black : :white)
       end
-
-
     end
 
     def checkmate?
@@ -108,8 +110,16 @@ module Chess
       each_piece_with_square.all? do |piece, square|
         piece.nil? || piece.color != turn_color ||
         piece.valid_moves.all? do |move|
+          p [square, move] unless leaves_in_check?(square, move)
           leaves_in_check?(square, move)
         end
+      end
+    end
+
+    def needs_promotion
+      (0..7).each do |col|
+        return self[[0, col]] if self[[0, col]].is_a?(Chess::Pawn)
+        return self[[7, col]] if self[[7, col]].is_a?(Chess::Pawn)
       end
     end
   end

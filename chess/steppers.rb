@@ -8,13 +8,22 @@ module Chess
   end
 
   class King < Stepper
+    attr_accessor :unmoved
+
     def initialize(color, square, board)
       super(color, square, board)
       @moves = [-1, 0, 1].product([-1, 0, 1]) - [[0, 0]]
+      @unmoved = true
+    end
+
+    #keeps track of whether the king has moved for castling
+    def square=(coord)
+      self.unmoved = false
+      @square = coord
     end
 
     def to_s
-      @color == :white ? "\u265A".encode("UTF-8") : "\u2654".encode("UTF-8")
+      @color == :white ? "\u2654".encode("UTF-8") : "\u265A".encode("UTF-8")
     end
   end
 

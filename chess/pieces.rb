@@ -59,7 +59,7 @@ module Chess
       [].tap do |attacks|
         @captures.each do |direction|
           next_space = @square.add_elements(direction)
-          if !@board[next_space].nil? && @board[next_space].color != @color
+          if !@board[next_space].nil? && move_valid?(next_space)
             attacks << next_space
           end
         end
