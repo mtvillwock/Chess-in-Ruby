@@ -99,6 +99,8 @@ module Chess
         execute_move(start_square, end_square)
         self.turn_color = (self.turn_color == :white? ? :black : :white)
       end
+
+
     end
 
     def checkmate?

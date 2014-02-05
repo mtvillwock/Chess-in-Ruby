@@ -7,12 +7,49 @@ module Chess
   class Game
     def initialize(player1, player2)
       @player1, @player2 = player1, player2
+      @board = Board.new
+      @player_colors = { :white => @player1, :black => @player2 }
+    end
+
+    def setup_normal_game
+      @board[[0, 0]] = Chess::Rook.new(:white, [0, 0], @board)
+      @board[[1, 0]] = Chess::Knight.new(:white, [1, 0], @board)
+      @board[[2, 0]] = Chess::Bishop.new(:white, [2, 0], @board)
+      @board[[3, 0]] = Chess::Queen.new(:white, [3, 0], @board)
+      @board[[4, 0]] = Chess::King.new(:white, [4, 0], @board)
+      @board[[5, 0]] = Chess::Bishop.new(:white, [5, 0], @board)
+      @board[[6, 0]] = Chess::Knight.new(:white, [6, 0], @board)
+      @board[[7, 0]] = Chess::Rook.new(:white, [7, 0], @board)
+
+      @board[[0, 7]] = Chess::Rook.new(:black, [0, 7], @board)
+      @board[[1, 7]] = Chess::Knight.new(:black, [1, 7], @board)
+      @board[[2, 7]] = Chess::Bishop.new(:black, [2, 7], @board)
+      @board[[3, 7]] = Chess::Queen.new(:black, [3, 7], @board)
+      @board[[4, 7]] = Chess::King.new(:black, [4, 7], @board)
+      @board[[5, 7]] = Chess::Bishop.new(:black, [5, 7], @board)
+      @board[[6, 7]] = Chess::Knight.new(:black, [6, 7], @board)
+      @board[[7, 7]] = Chess::Rook.new(:black, [7, 7], @board)
+
+      8.times do |column|
+        @board[[column, 7]] = Chess::Pawn.new(:white, [column, 1], @board)
+        @board[[column, 7]] = Chess::Pawn.new(:black, [column, 6], @board)
+      end
+    end
+
+    def full_game
+      setup_normal_game
+      until @board.checkmate?
+        @board.show
+        begin
+          start_sq, end_sq = player_colors[@board.turn_color].play_turn
+          @board.move(start_sq, end_sq)
+        rescue ArgumentError => error
+          puts error
+        end
+      end
     end
   end
 end
-
-
-
 
 class Array
   def add_elements!(other_array)
