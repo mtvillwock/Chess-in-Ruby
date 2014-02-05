@@ -19,23 +19,34 @@ module Chess
 
   class Queen < Slider
     def initialize(color, square, board)
-      super(color, square, board)
+      super
       @move_directions =  CARDINAL + DIAGONAL
     end
 
     def to_s
-      @color == :white ? "\u2655".encode("UTF-8") : "\u265B".encode("UTF-8")
+      ("\u265B".encode("UTF-8") + " ")
     end
   end
 
   class Rook < Slider
+
     def initialize(color, square, board)
-      super(color, square, board)
+      super
       @move_directions =  CARDINAL
+      @unmoved = true
+    end
+
+    def square=(pos)
+      @unmoved = false
+      @square = pos
+    end
+
+    def unmoved?
+      @unmoved
     end
 
     def to_s
-      @color == :white ? "\u2656".encode("UTF-8") : "\u265C".encode("UTF-8")
+      ("\u265C".encode("UTF-8") + " ")
     end
   end
 
@@ -46,7 +57,7 @@ module Chess
     end
 
     def to_s
-      @color == :white ? "\u2657".encode("UTF-8") : "\u265D".encode("UTF-8")
+      ("\u265D".encode("UTF-8") + " ")
     end
   end
 end

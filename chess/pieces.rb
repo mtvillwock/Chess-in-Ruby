@@ -1,4 +1,4 @@
-require 'debugger'
+require 'colorize'
 
 module Chess
   class Piece
@@ -67,8 +67,7 @@ module Chess
     end
 
     def to_s
-      @color == :white ? "\u2659".encode("UTF-8") : "\u265F".encode("UTF-8")
+      ("\u265F".encode("UTF-8")+ " ")
     end
-
   end
 end

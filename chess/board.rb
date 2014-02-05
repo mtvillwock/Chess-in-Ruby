@@ -10,8 +10,14 @@ module Chess
     end
 
     def show
-      print_board = @board.map do |row|
-        row.map { |square| square.nil? ? "_" : square.to_s }.join(" ")
+      print_board = @board.map.with_index do |row, row_ind|
+        row.map.with_index do |square, col_ind|
+          piece_color = (square.nil? || square.color == :white ? :white : :red)
+          sq_color = ((row_ind + col_ind).even? ? :light_blue : :black)
+          (square.nil? ? "  " : square.to_s)
+          .colorize(:background => sq_color, :color => piece_color)
+        end
+        .join
       end
 
       puts print_board
@@ -69,7 +75,6 @@ module Chess
       self.each_piece_with_square do |piece, square|
         next if piece.nil? || piece.color == self.turn_color
         if piece.valid_moves.include?(king_location)
-          puts "check!"
           return true
         end
       end
@@ -118,9 +123,62 @@ module Chess
 
     def needs_promotion
       (0..7).each do |col|
-        return self[[0, col]] if self[[0, col]].is_a?(Chess::Pawn)
-        return self[[7, col]] if self[[7, col]].is_a?(Chess::Pawn)
+        return self[[col, 0]] if self[[col, 0]].is_a?(Chess::Pawn)
+        return self[[col, 7]] if self[[col, 7]].is_a?(Chess::Pawn)
       end
+      nil
     end
+
+    def handle_promotion(piece, promotion_type)
+      new_piece = promotion_type.new(piece.color, piece.square, self)
+      self[piece.square] = new_piece
+    end
+
+    def king_castle?
+      row = (self.turn_color == :white ? 0 : 7)
+      !self.in_check? &&
+        self[king_square].unmoved? &&
+        self[[7, row]].is_a?(Chess::Rook) &&
+        self[[7, row]].unmoved? &&
+        self[[5, row]].nil? &&
+        self[[6, row]].nil? &&
+        !leaves_in_check?([4, row], [5, row]) &&
+        !leaves_in_check?([4, row], [6, row])
+    end
+
+    def king_castle
+      unless self.king_castle?
+        raise ArgumentError.new "You can't castle this way"
+      end
+      row = (self.turn_color == :white ? 0 : 7)
+      execute_move([4, row], [6, row])
+      execute_move([7, row], [5, row])
+      self.turn_color = (self.turn_color == :white ? :black : :white)
+    end
+
+    def queen_castle?
+      row = (self.turn_color == :white ? 0 : 7)
+      !self.in_check? &&
+        self[king_square].unmoved? &&
+        self[[0, row]].is_a?(Chess::Rook) &&
+        self[[0, row]].unmoved? &&
+        self[[1, row]].nil? &&
+        self[[2, row]].nil? &&
+        self[[3, row]].nil? &&
+        !leaves_in_check?([4, row], [3, row]) &&
+        !leaves_in_check?([4, row], [2, row])
+    end
+
+    def queen_castle
+      unless self.queen_castle?
+        raise ArgumentError.new "You can't castle this way"
+      end
+      row = (self.turn_color == :white ? 0 : 7)
+      execute_move([4, row], [2, row])
+      execute_move([0, row], [3, row])
+      self.turn_color = (self.turn_color == :white ? :black : :white)
+    end
+
+
   end
 end
