@@ -31,8 +31,8 @@ module Chess
       @board[[7, 7]] = Chess::Rook.new(:black, [7, 7], @board)
 
       8.times do |column|
-        @board[[column, 7]] = Chess::Pawn.new(:white, [column, 1], @board)
-        @board[[column, 7]] = Chess::Pawn.new(:black, [column, 6], @board)
+        @board[[column, 1]] = Chess::Pawn.new(:white, [column, 1], @board)
+        @board[[column, 6]] = Chess::Pawn.new(:black, [column, 6], @board)
       end
     end
 
@@ -41,7 +41,7 @@ module Chess
       until @board.checkmate?
         @board.show
         begin
-          start_sq, end_sq = player_colors[@board.turn_color].play_turn
+          start_sq, end_sq = @player_colors[@board.turn_color].play_turn
           @board.move(start_sq, end_sq)
         rescue ArgumentError => error
           puts error
@@ -64,28 +64,31 @@ class Array
 end
 
 
-x = Chess::Board.new
-test_king = Chess::King.new(:white, [0, 0], x)
-x[[0, 0]] = test_king
-test_rook = Chess::Rook.new(:black, [7, 1], x)
-x[[7, 1]] = test_rook
-test_rook1 = Chess::Rook.new(:black, [6, 1], x)
-x[[6, 1]] = test_rook1
+x = Chess::Game.new("fred","joe")
+x.full_game
 
-test_pawn2 = Chess::Pawn.new(:white, [6, 6], x)
-x[[6, 6]] = test_pawn2
+# x = Chess::Board.new
+# test_king = Chess::King.new(:white, [0, 0], x)
+# x[[0, 0]] = test_king
+# test_rook = Chess::Rook.new(:black, [7, 1], x)
+# x[[7, 1]] = test_rook
+# test_rook1 = Chess::Rook.new(:black, [6, 1], x)
+# x[[6, 1]] = test_rook1
+#
+# test_pawn2 = Chess::Pawn.new(:white, [6, 6], x)
+# x[[6, 6]] = test_pawn2
+# # x.show
+# # x.move([5, 7],[5, 5])
+# # p test_rook.valid_moves
+# # x.show
+# # x.king_square(:black)
+# # p x.in_check?(:black)
 # x.show
-# x.move([5, 7],[5, 5])
-# p test_rook.valid_moves
+# p x.checkmate?
+# x.turn_color = :black
+# x.move([6, 1], [6, 0])
 # x.show
-# x.king_square(:black)
-# p x.in_check?(:black)
-x.show
-p x.checkmate?
-x.turn_color = :black
-x.move([6, 1], [6, 0])
-x.show
-p x.checkmate?
+# p x.checkmate?
 # puts "W BOARD"
 # w.show
 # puts "X BOARD"
