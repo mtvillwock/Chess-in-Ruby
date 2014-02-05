@@ -26,13 +26,22 @@ end
 
 
 x = Chess::Board.new
-test_pawn = Chess::Pawn.new(:black, [3,6], x)
-x[[3,6]] = test_pawn
-test_knight = Chess::Knight.new(:black, [3,3], x)
-x[[3,3]] = test_knight
+test_king = Chess::King.new(:black, [3,7], x)
+x[[3,7]] = test_king
+test_knight = Chess::Knight.new(:white, [5,5], x)
+x[[5,5]] = test_knight
 test_pawn2 = Chess::Pawn.new(:white, [2,2], x)
-x[[2,2]] = test_pawn
+x[[2,2]] = test_pawn2
+# x.show
+# x.move([5, 7],[5, 5])
+# p test_knight.valid_moves
+# x.show
+# x.king_square(:black)
+# p x.in_check?(:black)
 x.show
-p test_pawn2.valid_moves
-p test_pawn.valid_moves
-
+w = x.dup
+x.move([5,5], [6,7])
+puts "W BOARD"
+w.show
+puts "X BOARD"
+x.show

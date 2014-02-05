@@ -2,7 +2,7 @@ require 'debugger'
 
 module Chess
   class Piece
-    attr_accessor :moves, :color
+    attr_accessor :moves, :color, :square, :board
 
     def initialize(color, square, board)
       @color, @square, @board = color, square, board
@@ -14,6 +14,13 @@ module Chess
 
     def move_valid?(square)
       on_board?(square) && !@board.has_own_piece?(square, self.color)
+    end
+
+    def recreate(new_board)
+      self.dup.tap do |new_piece|
+        new_piece.board = new_board
+        new_piece.square = self.square.dup
+      end
     end
   end
 
