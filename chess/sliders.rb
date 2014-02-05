@@ -4,7 +4,6 @@ module Chess
     DIAGONAL = [[1, 1], [-1, 1], [-1, -1], [1, -1]]
 
     def valid_moves
-      p "in valid_moves"
       [].tap do |all_valids|
         @move_directions.each do |direction|
           next_move = @square.add_elements(direction)

@@ -12,6 +12,8 @@ module Chess
 end
 
 
+
+
 class Array
   def add_elements!(other_array)
     self.map!.with_index do |_, index|
@@ -26,22 +28,28 @@ end
 
 
 x = Chess::Board.new
-test_king = Chess::King.new(:black, [3,7], x)
-x[[3,7]] = test_king
-test_knight = Chess::Knight.new(:white, [5,5], x)
-x[[5,5]] = test_knight
-test_pawn2 = Chess::Pawn.new(:white, [2,2], x)
-x[[2,2]] = test_pawn2
+test_king = Chess::King.new(:white, [0, 0], x)
+x[[0, 0]] = test_king
+test_rook = Chess::Rook.new(:black, [7, 1], x)
+x[[7, 1]] = test_rook
+test_rook1 = Chess::Rook.new(:black, [6, 1], x)
+x[[6, 1]] = test_rook1
+
+test_pawn2 = Chess::Pawn.new(:white, [6, 6], x)
+x[[6, 6]] = test_pawn2
 # x.show
 # x.move([5, 7],[5, 5])
-# p test_knight.valid_moves
+# p test_rook.valid_moves
 # x.show
 # x.king_square(:black)
 # p x.in_check?(:black)
 x.show
-w = x.dup
-x.move([5,5], [6,7])
-puts "W BOARD"
-w.show
-puts "X BOARD"
+p x.checkmate?
+x.turn_color = :black
+x.move([6, 1], [6, 0])
 x.show
+p x.checkmate?
+# puts "W BOARD"
+# w.show
+# puts "X BOARD"
+# x.show

@@ -1,9 +1,12 @@
+
+
 module Chess
   class Board
-    attr_accessor :board
+    attr_accessor :board, :turn_color
 
     def initialize
       @board = Array.new(8) { Array.new(8) { nil } }
+      @turn_color = :white
     end
 
     def show
@@ -17,6 +20,7 @@ module Chess
         each_piece_with_square do |piece, square|
           new_board[square] = (piece.nil? ? nil : piece.recreate(new_board))
         end
+        new_board.turn_color = self.turn_color
       end
     end
 
@@ -30,13 +34,13 @@ module Chess
       @board[7 - row][col] = piece
     end
 
-    def has_own_piece?(square, my_color)
-      (piece = self[square]) && (piece.color == my_color)
+    def has_own_piece?(square, color = self.turn_color)
+      (piece = self[square]) && (piece.color == color)
     end
 
-    def king_square(check_color)
+    def king_square
       self.each_piece_with_square do |piece, square|
-        return square if piece.is_a?(King) && piece.color == check_color
+        return square if piece.is_a?(King) && piece.color == self.turn_color
       end
     end
 
@@ -59,34 +63,52 @@ module Chess
       end
     end
 
-    def in_check?(color)
-      king_location = king_square(color)
+    def in_check?
+      king_location = king_square
       self.each_piece_with_square do |piece, square|
-        next if piece.nil? || piece.color == color
+        next if piece.nil? || piece.color == self.turn_color
         return true if piece.valid_moves.include?(king_location)
       end
       false
     end
 
-    # def leaves_in_check?(start_square, end_square)
-    #   test_board = self.dup
-    #
-    # end
+    #only works on otherwise valid move
+    def leaves_in_check?(start_square, end_square)
+      test_board = self.dup
+      color = self[start_square].color
+      test_board.execute_move(start_square, end_square)
+      test_board.in_check?
+    end
+
+    def execute_move(start_square, end_square)
+      piece = self[start_square]
+      self[start_square] = nil
+      self[end_square] = piece
+      piece.square = end_square
+    end
 
     def move(start_square, end_square)
       piece = self[start_square]
-      if piece.nil?
+      if piece.nil? || piece.color != self.turn_color
        raise ArgumentError.new "There is no piece at #{start_square}"
       elsif !piece.valid_moves.include?(end_square)
         raise ArgumentError.new "This is not a valid move"
-      elsif
-
+      elsif leaves_in_check?(start_square, end_square)
+        raise ArgumentError.new "This would leave you in check"
       else
-        self[start_square] = nil
-        self[end_square] = piece
-        piece.square = end_square
+        execute_move(start_square, end_square)
+        self.turn_color = (self.turn_color == :white? ? :black : :white)
       end
     end
 
+    def checkmate?
+      return false unless self.in_check?
+      each_piece_with_square.all? do |piece, square|
+        piece.nil? || piece.color != turn_color ||
+        piece.valid_moves.all? do |move|
+          leaves_in_check?(square, move)
+        end
+      end
+    end
   end
 end
