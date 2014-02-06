@@ -38,6 +38,8 @@ module Chess
       until @board.checkmate?
         @board.show
         puts "check!" if @board.in_check?
+        @board.clear_enpassantable
+        puts "#{@board.turn_color}'s turn"
         begin
           player_move = @player_colors[@board.turn_color].play_turn
           if player_move.all? { |coord| coord == "O" }
@@ -47,7 +49,7 @@ module Chess
             @board.move(start_sq, end_sq)
           end
 
-          self.search_do_promotion
+          search_do_promotion
         rescue ArgumentError => error
           puts error
         end
@@ -56,6 +58,8 @@ module Chess
       winner = @board.turn_color == :white ? :black : :white
       puts "#{winner} wins!"
     end
+
+    private
 
     def search_do_promotion
       if piece = @board.needs_promotion

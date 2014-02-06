@@ -46,33 +46,9 @@ module Chess
       (piece = self[square]) && (piece.color == color)
     end
 
-    def king_square
-      self.each_piece_with_square do |piece, square|
-        return square if piece.is_a?(King) && piece.color == self.turn_color
-      end
-    end
-
-    def each_piece_with_square(&blk)
-      if blk
-        (0...8).each do |row|
-          (0...8).each do |col|
-              blk.call([self[[row,col]], [row,col]])
-          end
-        end
-      else
-        Enumerator.new do |yielder|
-          (0...8).each do |row|
-            (0...8).each do |col|
-                yielder << [self[[row,col]], [row,col]]
-            end
-          end
-        end
-      end
-    end
-
     def in_check?
       king_location = king_square
-      self.each_piece_with_square do |piece, square|
+      each_piece_with_square do |piece, square|
         next if piece.nil? || piece.color == self.turn_color
         if piece.valid_moves.include?(king_location)
           return true
@@ -91,6 +67,14 @@ module Chess
 
     def execute_move(start_square, end_square)
       piece = self[start_square]
+      if piece.is_a?(Chess::Pawn)
+        #if the pawn is moving two squares, it becomes enpassantable
+        if (start_square[1] - end_square[1]).abs == 2
+          piece.en_passantable = true
+        elsif piece.en_passant_moves.include?(end_square)
+          self[[end_square[0], start_square[1]]] = nil
+        end
+      end
       self[start_square] = nil
       self[end_square] = piece
       piece.square = end_square
@@ -98,8 +82,12 @@ module Chess
 
     def move(start_square, end_square)
       piece = self[start_square]
-      if piece.nil? || piece.color != self.turn_color
-       raise ArgumentError.new "There is no piece at #{start_square}"
+      if piece.nil?
+        col_letter = ('a'..'h').to_a[start_square[0]]
+        start_name = col_letter + (start_square[1] + 1).to_s
+        raise ArgumentError.new "There is no piece at #{start_name}"
+      elsif piece.color != self.turn_color
+        raise ArgumentError.new "That's not your piece!"
       elsif !piece.valid_moves.include?(end_square)
         raise ArgumentError.new "This is not a valid move"
       elsif leaves_in_check?(start_square, end_square)
@@ -134,6 +122,36 @@ module Chess
       self[piece.square] = new_piece
     end
 
+    def king_castle
+      unless king_castle?
+        raise ArgumentError.new "You can't castle this way"
+      end
+      row = (self.turn_color == :white ? 0 : 7)
+      execute_move([4, row], [6, row])
+      execute_move([7, row], [5, row])
+      self.turn_color = (self.turn_color == :white ? :black : :white)
+    end
+
+    def queen_castle
+      unless queen_castle?
+        raise ArgumentError.new "You can't castle this way"
+      end
+      row = (self.turn_color == :white ? 0 : 7)
+      execute_move([4, row], [2, row])
+      execute_move([0, row], [3, row])
+      self.turn_color = (self.turn_color == :white ? :black : :white)
+    end
+
+    def clear_enpassantable
+      row = (self.turn_color == :white ? 3 : 4)
+      (0..7).each do |col|
+        piece = self[[col, row]]
+        piece.en_passantable = false if piece.is_a?(Chess::Pawn)
+      end
+    end
+
+    private
+
     def king_castle?
       row = (self.turn_color == :white ? 0 : 7)
       !self.in_check? &&
@@ -144,16 +162,6 @@ module Chess
         self[[6, row]].nil? &&
         !leaves_in_check?([4, row], [5, row]) &&
         !leaves_in_check?([4, row], [6, row])
-    end
-
-    def king_castle
-      unless self.king_castle?
-        raise ArgumentError.new "You can't castle this way"
-      end
-      row = (self.turn_color == :white ? 0 : 7)
-      execute_move([4, row], [6, row])
-      execute_move([7, row], [5, row])
-      self.turn_color = (self.turn_color == :white ? :black : :white)
     end
 
     def queen_castle?
@@ -169,16 +177,28 @@ module Chess
         !leaves_in_check?([4, row], [2, row])
     end
 
-    def queen_castle
-      unless self.queen_castle?
-        raise ArgumentError.new "You can't castle this way"
+    def each_piece_with_square(&blk)
+      if blk
+        (0...8).each do |row|
+          (0...8).each do |col|
+              blk.call([self[[row,col]], [row,col]])
+          end
+        end
+      else
+        Enumerator.new do |yielder|
+          (0...8).each do |row|
+            (0...8).each do |col|
+                yielder << [self[[row,col]], [row,col]]
+            end
+          end
+        end
       end
-      row = (self.turn_color == :white ? 0 : 7)
-      execute_move([4, row], [2, row])
-      execute_move([0, row], [3, row])
-      self.turn_color = (self.turn_color == :white ? :black : :white)
     end
 
-
+    def king_square
+      each_piece_with_square do |piece, square|
+        return square if piece.is_a?(King) && piece.color == self.turn_color
+      end
+    end
   end
 end
